@@ -71,17 +71,21 @@ npm run dev
 
 # Production mode
 npm run start
+
+# seed User Database
+npm run seedusers
+
+#delete User Database
+npm run deleteusers
 ```
 
 ### 5. API Documentation
 
-Access Swagger UI at: `http://localhost:3500/api-docs`
+Access Swagger UI at: `http://localhost:3500/api-docs` at local machines
 
 ## Running Tests
 
 ```bash
-npm run test
-npm run dev
 npm run test
 ```
 
@@ -117,6 +121,13 @@ npm run test
 - **Method:** DELETE
 - **Endpoint:** `/bookings/:id`
 
+### Update Booking
+
+- **Method:** PUT
+- **Endpoint:** `/bookings/:id`
+
+### The endpoint for admin is /admin/ or /admin/:id all CRUD func also applied for admin
+
 ## Error Handling
 
 - 400: Bad Request (Validation Errors)
@@ -129,4 +140,4 @@ seriousCharProgrammer
 
 vercel-site-check-api: [https://keymapi.vercel.app/]
 
-Project Link: [https://github.com/seriousCharProgrammer/booking-system-api](https://keymapi.vercel.app/)
+Project Link: [https://github.com/seriousCharProgrammer/booking-system-api]
