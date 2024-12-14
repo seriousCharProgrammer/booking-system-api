@@ -38,7 +38,7 @@ This is a Node.js-based booking system API that allows users and admin to create
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/booking-system-api.git
+git clone https://github.com/seriousCharProgrammer/booking-system-api.git
 cd booking-system-api
 ```
 
