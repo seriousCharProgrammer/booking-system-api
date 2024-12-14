@@ -31,7 +31,7 @@ function configureMiddleware(app) {
   if (NODE_ENV === 'production') {
     const limiter = rateLimit({
       windowMs: 10 * 60 * 1000, // 15 minutes
-      limit: 200, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+      limit: 200, // Limit each IP to 200 requests per `window` (here, per 15 minutes).
     });
 
     // CORS configuration
