@@ -11,6 +11,11 @@ const bookingRoute = require('./routes/bookingRoute');
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUI = require('swagger-ui-express');
 const path = require('path');
+const { xss } = require('express-xss-sanitizer');
+const cookieParser = require('cookie-parser');
+const mongoSanitize = require('express-mongo-sanitize');
+const { rateLimit } = require('express-rate-limit');
+const hpp = require('hpp');
 // Load environment variables
 dotenv.config({ path: './.env' });
 
@@ -24,6 +29,10 @@ const app = express();
 function configureMiddleware(app) {
   // Security middleware for production
   if (NODE_ENV === 'production') {
+    const limiter = rateLimit({
+      windowMs: 10 * 60 * 1000, // 15 minutes
+      limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    });
     // Ensure proper MIME types
     app.use(
       helmet.contentSecurityPolicy({
@@ -34,6 +43,10 @@ function configureMiddleware(app) {
         },
       })
     );
+    app.use(mongoSanitize());
+    app.use(xss());
+    app.use(hpp());
+    app.use(limiter);
   }
 
   // CORS configuration
@@ -61,6 +74,7 @@ function configureMiddleware(app) {
       strict: true,
     })
   );
+  app.use(cookieParser());
   app.use(express.urlencoded({ extended: true, limit: '20kb' }));
 }
 
