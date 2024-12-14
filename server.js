@@ -33,6 +33,19 @@ function configureMiddleware(app) {
       windowMs: 10 * 60 * 1000, // 15 minutes
       limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
     });
+
+    // CORS configuration
+    const corsOptions = {
+      origin:
+        NODE_ENV === 'production'
+          ? process.env.ALLOWED_ORIGINS.split(',')
+          : '*', // More restrictive in production
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      credentials: true,
+      optionsSuccessStatus: 200,
+    };
+
     // Ensure proper MIME types
     app.use(
       helmet.contentSecurityPolicy({
@@ -47,18 +60,8 @@ function configureMiddleware(app) {
     app.use(xss());
     app.use(hpp());
     app.use(limiter);
+    app.use(cors(corsOptions));
   }
-
-  // CORS configuration
-  const corsOptions = {
-    origin:
-      NODE_ENV === 'production' ? process.env.ALLOWED_ORIGINS.split(',') : '*', // More restrictive in production
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-    optionsSuccessStatus: 200,
-  };
-  app.use(cors(corsOptions));
 
   // Logging middleware
   if (NODE_ENV === 'development') {
@@ -207,6 +210,5 @@ module.exports = {
   startServer,
 };
 
-// Start the server if not being imported
-
+// Start the server
 startServer();
