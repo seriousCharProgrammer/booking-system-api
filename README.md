@@ -75,7 +75,7 @@ npm run start
 
 ### 5. API Documentation
 
-Access Swagger UI at: `http://localhost:3000/api-docs`
+Access Swagger UI at: `http://localhost:3500/api-docs`
 
 ## Running Tests
 
@@ -127,4 +127,4 @@ npm run test
 
 seriousCharProgrammer
 
-Project Link: [https://github.com/seriousCharProgrammer/booking-system-api](https://github.com/seriousCharProgrammer/booking-system-api)
+Project Link: [https://github.com/seriousCharProgrammer/booking-system-api](https://keymapi.vercel.app/)

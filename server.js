@@ -10,21 +10,30 @@ const adminRoute = require('./routes/adminRoute');
 const bookingRoute = require('./routes/bookingRoute');
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUI = require('swagger-ui-express');
-
+const path = require('path');
 // Load environment variables
 dotenv.config({ path: './.env' });
 
 // Determine the environment
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 3500;
 const app = express();
 
 // Middleware configuration based on environment
 function configureMiddleware(app) {
   // Security middleware for production
   if (NODE_ENV === 'production') {
-    app.use(helmet()); // Helps secure Express apps by setting various HTTP headers
+    // Ensure proper MIME types
+    app.use(
+      helmet.contentSecurityPolicy({
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'"],
+          styleSrc: ["'self'", "'unsafe-inline'", 'https:'],
+        },
+      })
+    );
   }
 
   // CORS configuration
@@ -79,12 +88,32 @@ function setupSwagger(app) {
       ],
       security: [{ bearerAuth: [] }],
     },
-    apis: ['./routes/*.js', './models/*.js'],
+    apis: [
+      path.join(__dirname, 'routes', '*.js'),
+      path.join(__dirname, 'models', '*.js'),
+    ],
   };
-
   const swaggerSpec = swaggerJSDoc(swaggerOptions);
 
-  app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+  app.get('/api-docs-assets/swagger.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
+  });
+  app.use(
+    '/api-docs-assets',
+    express.static(path.join(__dirname, 'node_modules/swagger-ui-dist'))
+  );
+
+  app.use(
+    '/api-docs',
+    swaggerUI.serve,
+    swaggerUI.setup(swaggerSpec, {
+      explorer: true,
+      swaggerOptions: {
+        url: 'https://petstore.swagger.io/v2/swagger.json', // Replace with your Swagger spec URL
+      },
+    })
+  );
 }
 
 // Database connection
@@ -103,6 +132,12 @@ function configureRoutes(app) {
   app.use('/api/v1/auth', authRoute);
   app.use('/api/v1/bookings', bookingRoute);
   app.use('/api/v1/admin', adminRoute);
+  app.get('/home', (req, res) => {
+    res.sendFile(path.join(__dirname, 'README.md'));
+  });
+  app.get('/', (req, res) => {
+    res.redirect('/api-docs');
+  });
 }
 
 // Server startup function
@@ -159,6 +194,5 @@ module.exports = {
 };
 
 // Start the server if not being imported
-if (require.main === module) {
-  startServer();
-}
+
+startServer();
