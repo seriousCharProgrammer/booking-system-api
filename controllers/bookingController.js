@@ -84,12 +84,21 @@ exports.getOneBooking = asyncHandler(async (req, res, next) => {
     booking,
   });
 });
-// Function to update an existing booking
-exports.updateBooking = asyncHandler(async (req, res, next) => {
-  // First, validate the booking data
-  const { error } = validateBooking(req.body);
 
-  // If validation fails, return error details
+exports.updateBooking = asyncHandler(async (req, res, next) => {
+  const { date, startTime, endTime } = req.body;
+  const bookingId = req.params.id;
+
+  // Check if the booking exists first
+  let booking = await Booking.findById(bookingId);
+  if (!booking) {
+    return res.status(404).json({
+      message: `Booking with id: ${bookingId} doesn't exist`,
+    });
+  }
+
+  // Validate booking data
+  const { error } = validateBooking(req.body, { abortEarly: false });
   if (error) {
     return res.status(400).json({
       message: 'Validation Error',
@@ -97,36 +106,29 @@ exports.updateBooking = asyncHandler(async (req, res, next) => {
     });
   }
 
-  const { date, startTime, endTime } = req.body;
-
-  // Check if the booking exists
-  let booking = await Booking.findById(req.params.id);
-  if (!booking) {
-    return res.status(404).json({
-      message: `Booking with id: ${req.params.id} doesn't exist`,
-    });
-  }
-
-  // Check for time slot conflicts before updating  const hasConflict = await Booking.checkConflict(
+  // Check for time slot conflicts before updating
   const hasConflict = await Booking.checkConflict(
     date,
     startTime,
     endTime,
-    req.params.id
+    bookingId
   );
   if (hasConflict) {
     return res.status(409).json({
-      message: 'This time slot is already booke08d',
+      message: 'This time slot is already booked',
     });
   }
 
-  // Update the booking and return the updated document
-  booking = await Booking.findByIdAndUpdate(req.params.id, req.body, {
-    new: true, // Return the updated document
-    runValidators: true, // Run mongoose validators
-  });
-  booking = await booking.save();
-  booking = await Booking.findById(req.params.id);
+  // Update the booking
+  booking = await Booking.findByIdAndUpdate(
+    bookingId,
+    { date, startTime, endTime },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
   // Return the updated booking
   res.status(200).json({
     success: true,
@@ -143,7 +145,7 @@ exports.deleteBooking = asyncHandler(async (req, res, next) => {
     });
   }
   // Delete the booking
-  product = await Booking.findByIdAndDelete(req.params.id);
+  booking = await Booking.findByIdAndDelete(req.params.id);
 
   res.status(200).json({
     success: true,
