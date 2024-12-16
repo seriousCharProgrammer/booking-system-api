@@ -91,6 +91,8 @@ npm run test
 
 ## API Endpoints
 
+## API Access from endpoint /api/v1/
+
 ### Create Booking
 
 - **Method:** POST
@@ -127,6 +129,14 @@ npm run test
 - **Endpoint:** `/bookings/:id`
 
 ### The endpoint for admin is /admin/ or /admin/:id all CRUD func also applied for admin
+
+### The Auth Endpoints (register and login)
+
+- **Method:** POST
+- **Endpoint:** /auth/register
+
+- **Method:** POST
+- **Endpoint:** /auth/login
 
 ## Error Handling
 
