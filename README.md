@@ -18,6 +18,7 @@ This is a Node.js-based booking system API that allows users and admin to create
 - Prevent overlapping time slot bookings
 - Comprehensive input validation
 - API documentation with Swagger
+- Implemented Authentication and Authorization for roles user and admin
 
 ## Prerequisites
 
