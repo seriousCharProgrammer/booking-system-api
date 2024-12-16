@@ -140,4 +140,6 @@ seriousCharProgrammer
 
 vercel-site-check-api: [https://keymapi.vercel.app/]
 
+aws-Ec2-site-check-api: [http://52.59.239.179:3500/api-docs/]
+
 Project Link: [https://github.com/seriousCharProgrammer/booking-system-api]
