@@ -85,6 +85,24 @@ exports.getOneBooking = asyncHandler(async (req, res, next) => {
   });
 });
 
+// Function to delete a booking
+exports.deleteBooking = asyncHandler(async (req, res, next) => {
+  // Check if the booking exists
+  let booking = await Booking.findById(req.params.id);
+  if (!booking) {
+    return res.status(404).json({
+      message: `Booking with id: ${req.params.id} doesn't exist`,
+    });
+  }
+  // Delete the booking
+  booking = await Booking.findByIdAndDelete(req.params.id);
+
+  res.status(200).json({
+    success: true,
+    data: null,
+  });
+});
+
 exports.updateBooking = asyncHandler(async (req, res, next) => {
   const { date, startTime, endTime } = req.body;
   const bookingId = req.params.id;
@@ -103,6 +121,18 @@ exports.updateBooking = asyncHandler(async (req, res, next) => {
     return res.status(400).json({
       message: 'Validation Error',
       details: error.details.map((detail) => detail.message),
+    });
+  }
+
+  try {
+    // This will trigger the pre-validate middleware
+    booking.date = date;
+    booking.startTime = startTime;
+    booking.endTime = endTime;
+    await booking.validate();
+  } catch (validationError) {
+    return res.status(400).json({
+      message: validationError.message,
     });
   }
 
@@ -133,22 +163,5 @@ exports.updateBooking = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     booking,
-  });
-});
-// Function to delete a booking
-exports.deleteBooking = asyncHandler(async (req, res, next) => {
-  // Check if the booking exists
-  let booking = await Booking.findById(req.params.id);
-  if (!booking) {
-    return res.status(404).json({
-      message: `Booking with id: ${req.params.id} doesn't exist`,
-    });
-  }
-  // Delete the booking
-  booking = await Booking.findByIdAndDelete(req.params.id);
-
-  res.status(200).json({
-    success: true,
-    data: null,
   });
 });

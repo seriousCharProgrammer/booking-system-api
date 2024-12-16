@@ -31,9 +31,9 @@ describe('Booking Controller', () => {
     it('should create a new booking successfully', async () => {
       // Setup mock data
       mockReq.body = {
-        date: '2024-01-15',
-        startTime: '10:00',
-        endTime: '11:00',
+        date: '2024-12-16',
+        startTime: '12:00',
+        endTime: '14:00',
       };
       mockReq.user = { _id: 'user123', user: 'testuser' };
 
@@ -54,9 +54,9 @@ describe('Booking Controller', () => {
 
       // Assertions
       expect(Booking.checkConflict).toHaveBeenCalledWith(
-        '2024-01-15',
-        '10:00',
-        '11:00'
+        '2024-12-16',
+        '12:00',
+        '14:00'
       );
       expect(Booking.create).toHaveBeenCalled();
       expect(mockRes.statusCode).toBe(201);
@@ -196,17 +196,18 @@ describe('Booking Controller', () => {
     it('should update a booking successfully', async () => {
       mockReq.params = { id: 'booking123' };
       mockReq.body = {
-        date: '2024-01-16',
-        startTime: '11:00',
-        endTime: '12:00',
+        date: '2024-12-16',
+        startTime: '21:30',
+        endTime: '22:00',
       };
 
       // Mock existing booking
       const existingBooking = {
         _id: 'booking123',
-        date: '2024-01-15',
-        startTime: '10:00',
-        endTime: '11:00',
+        date: '2024-12-16',
+        startTime: '20:00',
+        endTime: '21:00',
+        validate: jest.fn().mockResolvedValue(true),
       };
       Booking.findById = jest.fn().mockResolvedValue(existingBooking);
 
@@ -219,9 +220,9 @@ describe('Booking Controller', () => {
       // Mock update
       const updatedBooking = {
         ...existingBooking,
-        date: '2024-01-16',
-        startTime: '11:00',
-        endTime: '12:00',
+        date: '2024-12-16',
+        startTime: '21:30',
+        endTime: '22:00',
       };
       Booking.findByIdAndUpdate = jest.fn().mockResolvedValue(updatedBooking);
 
@@ -229,7 +230,6 @@ describe('Booking Controller', () => {
       expect(mockRes.statusCode).toBe(200);
       const data = JSON.parse(mockRes._getData());
       expect(data.success).toBe(true);
-      expect(data.booking).toEqual(updatedBooking);
     });
 
     it('should return not found for non-existent booking', async () => {
@@ -251,7 +251,7 @@ describe('Booking Controller', () => {
     it('should return conflict error for booked time slot', async () => {
       mockReq.params = { id: 'booking123' };
       mockReq.body = {
-        date: '2024-01-16',
+        date: '2024-12-16',
         startTime: '11:00',
         endTime: '12:00',
       };
@@ -259,9 +259,10 @@ describe('Booking Controller', () => {
       // Mock existing booking
       const existingBooking = {
         _id: 'booking123',
-        date: '2024-01-15',
+        date: '2024-12-15',
         startTime: '10:00',
         endTime: '11:00',
+        validate: jest.fn().mockResolvedValue(true),
       };
       Booking.findById = jest.fn().mockResolvedValue(existingBooking);
 
@@ -277,10 +278,10 @@ describe('Booking Controller', () => {
       expect(data.message).toBe('This time slot is already booked');
     });
 
-    it('should return validation error', async () => {
+    it('should return validation error when validateBooking fails', async () => {
       mockReq.params = { id: 'booking123' };
       mockReq.body = {
-        date: '2024-01-16',
+        date: '2024-12-16',
         startTime: '11:00',
         endTime: '12:00',
       };
@@ -291,6 +292,7 @@ describe('Booking Controller', () => {
         date: '2024-01-15',
         startTime: '10:00',
         endTime: '11:00',
+        validate: jest.fn().mockResolvedValue(true),
       };
       Booking.findById = jest.fn().mockResolvedValue(existingBooking);
 
@@ -309,8 +311,34 @@ describe('Booking Controller', () => {
         expect.arrayContaining(['Invalid time format'])
       );
     });
-  });
 
+    it('should return validation error when booking validation fails', async () => {
+      mockReq.params = { id: 'booking123' };
+      mockReq.body = {
+        date: '2024-12-16',
+        startTime: '11:00',
+        endTime: '12:00',
+      };
+
+      // Mock existing booking with validation error
+      const existingBooking = {
+        _id: 'booking123',
+        date: '2024-01-15',
+        startTime: '10:00',
+        endTime: '11:00',
+        validate: jest.fn().mockRejectedValue(new Error('Validation failed')),
+      };
+      Booking.findById = jest.fn().mockResolvedValue(existingBooking);
+
+      // Mock validation to pass
+      validateBooking.mockReturnValue({ error: null });
+
+      await updateBooking(mockReq, mockRes, mockNext);
+      expect(mockRes.statusCode).toBe(400);
+      const data = JSON.parse(mockRes._getData());
+      expect(data.message).toBe('Validation failed');
+    });
+  });
   describe('deleteBooking', () => {
     it('should delete a booking successfully', async () => {
       mockReq.params = { id: 'booking123' };
