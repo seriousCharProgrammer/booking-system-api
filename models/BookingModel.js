@@ -23,11 +23,56 @@ const BookingSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-// Pre-validation hook to check if the start time is before the end time
+
 BookingSchema.pre('validate', function (next) {
-  if (this.startTime >= this.endTime) {
-    next(new ErrorResponse('Start time must be before end time'), 400);
+  // Get current date and time
+  const now = new Date();
+
+  // Parse the booking date
+  const bookingDate = new Date(this.date);
+
+  // Parse start and end times
+  const [startHours, startMinutes] = this.startTime.split(':').map(Number);
+  const [endHours, endMinutes] = this.endTime.split(':').map(Number);
+
+  // Create date objects with the booking date and times
+  const startDateTime = new Date(this.date);
+  startDateTime.setHours(startHours, startMinutes, 0, 0);
+
+  const endDateTime = new Date(this.date);
+  endDateTime.setHours(endHours, endMinutes, 0, 0);
+
+  // Validate start time is before end time
+  if (startDateTime >= endDateTime) {
+    return next(new Error('Start time must be before end time'));
   }
+
+  // Check if booking date is in the past
+  const nowWithoutTime = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
+  const bookingDateWithoutTime = new Date(
+    bookingDate.getFullYear(),
+    bookingDate.getMonth(),
+    bookingDate.getDate()
+  );
+
+  if (bookingDateWithoutTime < nowWithoutTime) {
+    return next(new Error('Please choose a date not in the past'));
+  }
+
+  // If booking is for today, ensure start time is after current time
+  if (bookingDateWithoutTime.getTime() === nowWithoutTime.getTime()) {
+    const currentTime = now.getHours() * 60 + now.getMinutes();
+    const bookingStartTime = startHours * 60 + startMinutes;
+
+    if (bookingStartTime <= currentTime) {
+      return next(new Error('Booking time must be after the current time'));
+    }
+  }
+
   next();
 });
 // Static method to check for booking conflicts
