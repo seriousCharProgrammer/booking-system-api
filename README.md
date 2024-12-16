@@ -138,6 +138,6 @@ npm run test
 
 seriousCharProgrammer
 
-vercel-site-check-api: [https://keymapi-phvnt26xv-seriouscharprogrammers-projects.vercel.app/api-docs/]
+vercel-site-check-api: [https://keymapi.vercel.app/]
 
 Project Link: [https://github.com/seriousCharProgrammer/booking-system-api]
