@@ -93,6 +93,8 @@ npm run test
 
 ## API Access from endpoint /api/v1/
 
+- **EXAMPLE:** `/api/v1/auth/register`
+
 ### Create Booking
 
 - **Method:** POST
