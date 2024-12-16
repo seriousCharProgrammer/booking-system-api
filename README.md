@@ -133,10 +133,10 @@ npm run test
 ### The Auth Endpoints (register and login)
 
 - **Method:** POST
-- **Endpoint:** /auth/register
+- **Endpoint:** `/auth/register`
 
 - **Method:** POST
-- **Endpoint:** /auth/login
+- **Endpoint:** `/auth/login`
 
 ## Error Handling
 
