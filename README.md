@@ -81,7 +81,7 @@ npm run deleteusers
 
 ### 5. API Documentation
 
-Access Swagger UI at: `http://localhost:3500/api-docs` at local machines
+Access Swagger UI at: `http://localhost:3500/api-docs` on local machines
 
 ## Running Tests
 
