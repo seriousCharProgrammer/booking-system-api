@@ -91,7 +91,7 @@ npm run test
 
 ## API Endpoints
 
-## API Access from endpoint /api/v1/
+## API Access from endpoint /api/v1
 
 - **EXAMPLE:** `/api/v1/auth/register`
 
